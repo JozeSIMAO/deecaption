@@ -9,6 +9,7 @@ import robotoBold from './../fonts/Roboto-Bold.ttf';
 export default function ResultVideo({filename,transcriptionItems}) {
   const videoUrl = "https://deecaptionbucket.s3.amazonaws.com/"+filename;
   const [loaded, setLoaded] = useState(false);
+  const [isCaptioning, setIsCaptioning] = useState(false);
   const [primaryColor, setPrimaryColor] = useState('#FFFFFF');
   const [outlineColor, setOutlineColor] = useState('#000000');
   const [isClicked, setIsClicked] = useState(false);
@@ -39,6 +40,7 @@ export default function ResultVideo({filename,transcriptionItems}) {
   }
 
   const transcode = async () => {
+    setIsCaptioning(true);
     setIsClicked(true);
 
     setTimeout(() => {
@@ -85,6 +87,7 @@ export default function ResultVideo({filename,transcriptionItems}) {
           <SparklesIcon />
           <span>Apply captions</span>
         </button>
+        {isCaptioning && <p>Captioning has begun. Please wait...</p>}
       </div>
       <div>
         primary color:
