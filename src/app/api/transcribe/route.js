@@ -5,19 +5,19 @@ function getClient() {
   return new TranscribeClient({
     region: 'us-east-2',
     credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY,
-      secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY,
+      accessKeyId: process.env.MY_OWN_AWS_ACCESS_KEY,
+      secretAccessKey: process.env.MY_OWN_AWS_SECRET_ACCESS_KEY,
     },
   });
 }
 function createTranscriptionCommand(filename) {
   return new StartTranscriptionJobCommand({
     TranscriptionJobName: filename,
-    OutputBucketName: process.env.BUCKET_NAME,
+    OutputBucketName: process.env.MY_OWN_BUCKET_NAME,
     OutputKey: filename + '.transcription',
     IdentifyLanguage: true,
     Media: {
-      MediaFileUri: 's3://' + process.env.BUCKET_NAME + '/'+filename,
+      MediaFileUri: 's3://' + process.env.MY_OWN_BUCKET_NAME + '/'+filename,
     },
   });
 }
