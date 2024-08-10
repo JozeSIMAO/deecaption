@@ -10,6 +10,7 @@ export default function FilePage({params}) {
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [isFetchingInfo, setIsFetchingInfo] = useState(false);
   const [awsTranscriptionItems, setAwsTranscriptionItems] = useState([]);
+  const [transcriptionError, setTranscriptionError] = useState(null);
 
   useEffect(() => {
     getTranscription();
@@ -28,14 +29,27 @@ export default function FilePage({params}) {
       } else {
         setIsTranscribing(false);
         if (transcription && transcription.results) {
-          setAwsTranscriptionItems(
-            clearTranscriptionItems(transcription.results.items)
-          );
+          if (transcription.reults === null) {
+            setTranscriptionError('The transcription file is empty, or the audio in the video is not clear.');
+          }
+          else {
+            setAwsTranscriptionItems(
+              clearTranscriptionItems(transcription.results.items)
+            );
+          }
         }
       }
     } catch (error) {
       console.error(error);
     }
+  }
+
+
+  if (transcriptionError)
+  {
+    return (
+      <div className="text-red-500">{transcriptionError}</div>
+    );
   }
 
   if (isTranscribing) {
