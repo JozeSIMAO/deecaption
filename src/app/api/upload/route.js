@@ -20,7 +20,7 @@ export async function POST(req) {
   const newName = id + '.' + ext;
 
   const uploadCommand = new PutObjectCommand({
-    Bucket: process.env.BUCKET_NAME,
+    Bucket: process.env.MY_OWN_BUCKET_NAME,
     Body: data,
     ACL: 'public-read',
     ContentType: type,

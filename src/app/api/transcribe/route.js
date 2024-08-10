@@ -55,12 +55,12 @@ async function getTranscriptionFile(filename) {
   const s3client = new S3Client({
     region: 'us-east-2',
     credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      accessKeyId: process.env.MY_OWN_AWS_ACCESS_KEY,
+      secretAccessKey: process.env.MY_OWN_AWS_SECRET_ACCESS_KEY,
     },
   });
   const getObjectCommand = new GetObjectCommand({
-    Bucket: process.env.BUCKET_NAME,
+    Bucket: process.env.MY_OWN_BUCKET_NAME,
     Key: transcriptionFile,
   });
   let transcriptionFileResponse = null;
