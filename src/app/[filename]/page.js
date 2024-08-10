@@ -20,10 +20,8 @@ export default function FilePage({params}) {
     try {
       const response = await axios.get('/api/transcribe?filename='+filename);
       setIsFetchingInfo(false);
-      console.log(response.data);
       const status = response.data?.status;
       const transcription = response.data?.transcription;
-      console.log(transcription)
       if (status === 'IN_PROGRESS') {
         setIsTranscribing(true);
         setTimeout(getTranscription, 3000);

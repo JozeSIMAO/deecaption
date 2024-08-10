@@ -7,27 +7,33 @@ export async function POST(req) {
   const {name, type} = file;
   const data = await file.arrayBuffer();
 
-  const s3client = new S3Client({
-    region: 'us-east-2',
-    credentials: {
-      accessKeyId: process.env.MY_OWN_AWS_ACCESS_KEY,
-      secretAccessKey: process.env.MY_OWN_AWS_SECRET_ACCESS_KEY,
-    },
-  });
-
-  const id = uniqid();
-  const ext = name.split('.').slice(-1)[0];
-  const newName = id + '.' + ext;
-
-  const uploadCommand = new PutObjectCommand({
-    Bucket: process.env.MY_OWN_BUCKET_NAME,
-    Body: data,
-    ACL: 'public-read',
-    ContentType: type,
-    Key: newName,
-  });
-
-  await s3client.send(uploadCommand);
-
-  return Response.json({name,ext,newName,id});
+  try {
+    const s3client = new S3Client({
+      region: 'us-east-2',
+      credentials: {
+        accessKeyId: process.env.MY_OWN_AWS_ACCESS_KEY,
+        secretAccessKey: process.env.MY_OWN_AWS_SECRET_ACCESS_KEY,
+      },
+    });
+  
+    const id = uniqid();
+    const ext = name.split('.').slice(-1)[0];
+    const newName = id + '.' + ext;
+  
+    const uploadCommand = new PutObjectCommand({
+      Bucket: process.env.MY_OWN_BUCKET_NAME,
+      Body: data,
+      ACL: 'public-read',
+      ContentType: type,
+      Key: newName,
+    });
+  
+    await s3client.send(uploadCommand);
+  
+    return Response.json({name,ext,newName,id});
+  }
+  catch (error) {
+    console.error(error);
+    return Response.error(error);
+  }
 }
