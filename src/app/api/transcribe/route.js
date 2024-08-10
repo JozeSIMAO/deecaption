@@ -11,8 +11,9 @@ function getClient() {
   });
 }
 function createTranscriptionCommand(filename) {
+  const uniqueJobName = `${filename}-${Date.now()}`;
   return new StartTranscriptionJobCommand({
-    TranscriptionJobName: filename,
+    TranscriptionJobName: uniqueJobName,
     OutputBucketName: process.env.MY_OWN_BUCKET_NAME,
     OutputKey: filename + '.transcription',
     IdentifyLanguage: true,
