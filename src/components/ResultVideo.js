@@ -45,7 +45,7 @@ export default function ResultVideo({filename,transcriptionItems}) {
 
     setTimeout(() => {
       setIsCaptioning(false);
-    }, 15000);
+    }, 360000);
 
     setTimeout(() => {
       setIsClicked(false);
