@@ -28,7 +28,7 @@ export default function UploadForm() {
           headers: { 'Content-Type': 'application/json' },
         });
 
-        const chunkSize = 3 * 1024 * 1024; // 5MB chunks
+        const chunkSize = 5 * 1024 * 1024; // 5MB chunks
         const fileChunks = [];
         let currentPartNumber = 1;
 
