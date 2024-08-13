@@ -1,13 +1,14 @@
 'use client';
 import UploadIcon from "@/components/UploadIcon";
 import axios from "axios";
-import {useRouter} from "next/navigation";
-import {useState} from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function UploadForm() {
-  
+
   const [uploadError, setUploadError] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const router = useRouter();
 
   async function upload(ev) {
@@ -17,15 +18,53 @@ export default function UploadForm() {
       try {
         const file = files[0];
         setIsUploading(true);
-        const res = await axios.postForm('/api/upload', {
-          file,
+        setUploadProgress(0);
+        
+        const fileName = file.name;
+        const fileType = file.type;
+
+        // Step 1: Initiate Multipart Upload
+        const { data: { uploadId, newName } } = await axios.post('/api/upload/initiate', { fileName, fileType }, {
+          headers: { 'Content-Type': 'application/json' },
         });
+
+        const chunkSize = 5 * 1024 * 1024; // 5MB chunks
+        const fileChunks = [];
+        let currentPartNumber = 1;
+
+        for (let start = 0; start < file.size; start += chunkSize) {
+          const chunk = file.slice(start, start + chunkSize);
+          fileChunks.push({ chunk, partNumber: currentPartNumber });
+          currentPartNumber += 1;
+        }
+
+        // Step 2: Upload Each Part
+        const uploadParts = fileChunks.map(async ({ chunk, partNumber }) => {
+          const formData = new FormData();
+          formData.append('fileName', newName);
+          formData.append('uploadId', uploadId);
+          formData.append('partNumber', partNumber);
+          formData.append('fileChunk', chunk); // Add chunk directly
+
+          const { data: { ETag } } = await axios.post('/api/upload/part', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          });
+
+          // Update Progress
+          setUploadProgress((prev) => prev + (1 / fileChunks.length) * 100);
+
+          return { ETag, PartNumber: partNumber };
+        });
+
+        const parts = await Promise.all(uploadParts);
+
+        // Step 3: Complete Multipart Upload
+        await axios.post('/api/upload/complete', { fileName: newName, uploadId, parts });
+
         setIsUploading(false);
-        const newName = res.data.newName;
-        router.push('/'+newName);
+        router.push('/' + newName);
       }
-      catch (error)
-      {
+      catch (error) {
         setIsUploading(false);
         setUploadError(error.message);
       }
@@ -39,6 +78,7 @@ export default function UploadForm() {
           <div className="w-full text-center">
             <h2 className="text-4xl mb-4">Uploading</h2>
             <h3 className="text-xl">Please wait...</h3>
+            <progress value={uploadProgress} max="100" className="w-1/2 mx-auto"></progress>
           </div>
         </div>
       )}

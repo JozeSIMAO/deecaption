@@ -15,11 +15,14 @@
     "@ffmpeg/ffmpeg": "^0.12.10",
     "@ffmpeg/util": "^0.12.1",
     "aws-crt": "^1.18.0",
+    "aws-sdk": "^2.1673.0",
     "axios": "^1.5.1",
     "next": "^14.2.5",
     "react": "latest",
     "react-dom": "latest",
-    "uniqid": "^5.4.0"
+    "uniqid": "^5.4.0",
+    "uuid": "^10.0.0",
+    "yarn": "^1.22.22"
   },
   "devDependencies": {
     "autoprefixer": "latest",
