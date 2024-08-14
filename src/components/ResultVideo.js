@@ -18,20 +18,22 @@ export default function ResultVideo({ filename, transcriptionItems }) {
   const videoRef = useRef(null);
 
   useEffect(() => {
-    const initializeFFmpeg = async () => {
-      const ffmpeg = ffmpegRef.current;
-      const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.2/dist/umd';
-      await ffmpeg.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-      });
-      await ffmpeg.writeFile('/tmp/roboto.ttf', await fetchFile(roboto));
-      await ffmpeg.writeFile('/tmp/roboto-bold.ttf', await fetchFile(robotoBold));
-      setLoaded(true);
-    };
-
-    initializeFFmpeg();
-  }, []);
+    if (typeof window !== "undefined") {
+      const initializeFFmpeg = async () => {
+        const ffmpeg = ffmpegRef.current;
+        const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.2/dist/umd';
+        await ffmpeg.load({
+          coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+          wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+        });
+        await ffmpeg.writeFile('/tmp/roboto.ttf', await fetchFile(roboto));
+        await ffmpeg.writeFile('/tmp/roboto-bold.ttf', await fetchFile(robotoBold));
+        setLoaded(true);
+      };
+  
+      initializeFFmpeg();
+    }
+  }, []);  
 
   function toFFmpegColor(rgb) {
     const bgr = rgb.slice(5, 7) + rgb.slice(3, 5) + rgb.slice(1, 3);

@@ -1,11 +1,12 @@
 'use client';
+
 import ResultVideo from "@/components/ResultVideo";
 import TranscriptionEditor from "@/components/TranscriptionEditor";
-import {clearTranscriptionItems} from "@/libs/awsTranscriptionHelpers";
+import { clearTranscriptionItems } from "@/libs/awsTranscriptionHelpers";
 import axios from "axios";
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 
-export default function FilePage({params}) {
+export default function FilePage({ params }) {
   const filename = params.filename;
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [isFetchingInfo, setIsFetchingInfo] = useState(false);
@@ -13,40 +14,39 @@ export default function FilePage({params}) {
   const [transcriptionError, setTranscriptionError] = useState(null);
 
   useEffect(() => {
-    getTranscription();
+    if (filename) {
+      getTranscription();
+    }
   }, [filename]);
 
   async function getTranscription() {
     setIsFetchingInfo(true);
     try {
-      const response = await axios.get('/api/transcribe?filename='+filename);
+      const response = await axios.get(`/api/transcribe?filename=${filename}`);
       setIsFetchingInfo(false);
-      const status = response.data?.status;
-      const transcription = response.data?.transcription;
+      const { status, transcription } = response.data;
+
       if (status === 'IN_PROGRESS') {
         setIsTranscribing(true);
-        setTimeout(getTranscription, 3000);
+        setTimeout(getTranscription, 3000); // Retry after 3 seconds
       } else {
         setIsTranscribing(false);
         if (transcription && transcription.results) {
-          if (transcription.reults === null) {
+          if (!transcription.results.items) {
             setTranscriptionError('The transcription file is empty, or the audio in the video is not clear.');
-          }
-          else {
-            setAwsTranscriptionItems(
-              clearTranscriptionItems(transcription.results.items)
-            );
+          } else {
+            setAwsTranscriptionItems(clearTranscriptionItems(transcription.results.items));
           }
         }
       }
     } catch (error) {
+      setIsFetchingInfo(false);
+      setTranscriptionError('An error occurred while fetching transcription data.');
       console.error(error);
     }
   }
 
-
-  if (transcriptionError)
-  {
+  if (transcriptionError) {
     return (
       <div className="text-red-500">{transcriptionError}</div>
     );
@@ -67,17 +67,19 @@ export default function FilePage({params}) {
   return (
     <div>
       <div className="grid sm:grid-cols-2 gap-8 sm:gap-16">
-        <div className="">
+        <div>
           <h2 className="text-2xl mb-4 text-white/60">Transcription</h2>
           <TranscriptionEditor
             awsTranscriptionItems={awsTranscriptionItems}
-            setAwsTranscriptionItems={setAwsTranscriptionItems} />
+            setAwsTranscriptionItems={setAwsTranscriptionItems}
+          />
         </div>
         <div>
           <h2 className="text-2xl mb-4 text-white/60">Result</h2>
           <ResultVideo
             filename={filename}
-            transcriptionItems={awsTranscriptionItems} />
+            transcriptionItems={awsTranscriptionItems}
+          />
         </div>
       </div>
     </div>
